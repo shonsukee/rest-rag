@@ -1,0 +1,126 @@
+{
+	"paths": {
+	  "/user/{user-id}/sleep/minutesAsleep/date/{start-date-or-end-date}/{end-date-or-period}.json": {
+		"get": {
+		  "externalDocs": {
+			"url": "http://wiki.fitbit.com/display/API/API-Get-Time-Series"
+		  },
+		  "description": "Get time series in the specified range for a given resource in the format requested using units in the unit system which corresponds to the Accept-Language header provided.",
+		  "responses": {
+			"200": {
+			  "description": "Successful Response"
+			}
+		  },
+		  "operationId": "user.user_id.sleep.minutesAsleep.date.start_date_or_end_date.end_date_or_period.json.get"
+		},
+		"parameters": [
+		  {
+			"default": "-",
+			"type": "string",
+			"in": "path",
+			"required": true,
+			"name": "user-id"
+		  },
+		  {
+			"default": "2015-03-01",
+			"type": "string",
+			"in": "path",
+			"required": true,
+			"name": "start-date-or-end-date"
+		  },
+		  {
+			"default": "7d",
+			"type": "string",
+			"in": "path",
+			"required": true,
+			"name": "end-date-or-period"
+		  }
+		]
+	  },
+	  "/user/{user-id}/foods/log/caloriesIn/date/{start-date-or-end-date}/{end-date-or-period}.json": {
+		"get": {
+		  "externalDocs": {
+			"url": "http://wiki.fitbit.com/display/API/API-Get-Time-Series"
+		  },
+		  "description": "Get time series in the specified range for a given resource in the format requested using units in the unit system which corresponds to the Accept-Language header provided.",
+		  "responses": {
+			"200": {
+			  "description": "Successful Response"
+			}
+		  },
+		  "operationId": "user.user_id.foods.log.caloriesIn.date.start_date_or_end_date.end_date_or_period.json.get"
+		},
+		"parameters": [
+		  {
+			"default": "-",
+			"type": "string",
+			"in": "path",
+			"required": true,
+			"name": "user-id"
+		  },
+		  {
+			"default": "2015-03-01",
+			"type": "string",
+			"in": "path",
+			"required": true,
+			"name": "start-date-or-end-date"
+		  },
+		  {
+			"default": "7d",
+			"type": "string",
+			"in": "path",
+			"required": true,
+			"name": "end-date-or-period"
+		  }
+		]
+	  },
+	  "/user/{user-id}/profile.json": {
+		"get": {
+		  "externalDocs": {
+			"url": "http://wiki.fitbit.com/display/API/API-Get-User-Info"
+		  },
+		  "description": "Get user's profile in the format requested using units in the unit system which corresponds to the Accept-Language header provided.",
+		  "responses": {
+			"200": {
+			  "description": "Successful Response"
+			}
+		  },
+		  "operationId": "user.user_id.profile.json.get"
+		},
+		"parameters": [
+		  {
+			"default": "-",
+			"type": "string",
+			"in": "path",
+			"required": true,
+			"name": "user-id"
+		  }
+		]
+	  }
+	},
+	"securityDefinitions": {
+	  "oauth2": {
+		"scopes": {
+		  "weight": "The weight scope includes weight and related information, such as body mass index, body fat percentage, and goals",
+		  "social": "The social scope includes friend-related features, such as friend list, invitations, and leaderboard",
+		  "sleep": "The sleep scope includes sleep logs and related sleep analysis",
+		  "settings": "The settings scope includes user account and device settings, such as alarms",
+		  "profile": "The profile scope is the basic user information",
+		  "nutrition": "The nutrition scope includes calorie consumption and nutrition related features, such as food/water logging, goals, and plans",
+		  "location": "The location scope includes the GPS and other location data",
+		  "heartrate": "The heartrate scope includes the continuous heart rate data and related analysis",
+		  "activity": "The activity scope includes activity data and exercise log related features, such as steps, distance, calories burned, and active minutes"
+		},
+		"flow": "application",
+		"type": "oauth2",
+		"tokenUrl": "https://api.fitbit.com/oauth2/token",
+		"authorizationUrl": "https://www.fitbit.com/oauth2/authorize"
+	  }
+	},
+	"schemes": [
+	  "https"
+	],
+	"basePath": "/1",
+	"host": "api.fitbit.com",
+	"swagger": "2.0"
+  }

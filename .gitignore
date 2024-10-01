@@ -1,0 +1,8 @@
+.env
+lib/*python*
+
+__pycache__
+
+.vscode/
+
+pyvenv.cfg
