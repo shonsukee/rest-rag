@@ -14,11 +14,10 @@ class Query:
 		load_dotenv()
 		self.namespace = namespace
 		self.client = OpenAI()
-		self.query_engine = self.initialize_pinecone()
 
-	def initialize_pinecone(self):
+	def initialize_pinecone(self, index_name):
 		pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
-		index_name = os.environ.get("INDEX_NAME")
+		index_name = os.environ.get(index_name)
 		print(index_name)
 
 		pinecone_index = pc.Index(index_name)
@@ -32,7 +31,7 @@ class Query:
 		index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
 		vector_retriever = VectorIndexRetriever(
 			index=index,
-			similarity_top_k=10, # 関連度上位10件取得
+			similarity_top_k=5, # 関連度上位5件取得
 		)
 
 		response_synthesizer = get_response_synthesizer()
@@ -56,35 +55,40 @@ class Query:
 		"""
 		context = ""
 		similarities = []
+		pinecone_indexes = [
+			"latest_natural_language",
+			"latest_code",
+			"outdated_natural_language",
+			"outdated_code",
+		]
 
-		# クエリ結果から関連ノードを取得
-		response = self.query_engine.query(user_query)
-		related_nodes = response.source_nodes
-		for idx, node in enumerate(related_nodes):
-			context += f"""
-				Context number {idx+1} (score: {node.score}):
-				{node.text}
-			"""
-			similarities.append(node.score)
+		# 4つ分のDBへ取得処理を行うためのループを回す
+		for index in pinecone_indexes:
+			self.query_engine = self.initialize_pinecone(index.upper())
+			# クエリ結果から関連ノードを取得
+			response = self.query_engine.query(user_query)
+			related_nodes = response.source_nodes
+			context += f"\n## Technical Specifications for {index.replace('_', ' ').capitalize()}\n"
+			for idx, node in enumerate(related_nodes):
+				context += f"""\nContext number {idx+1} (score: {node.score}): \n{node.text}"""
+				similarities.append(node.score)
 
 		# 関連度の平均計算
-		similarity = 0
-		if len(similarities) > 0:
-			similarity = np.mean(similarities)
+		similarity = np.mean(similarities) if len(similarities) > 0 else 0
 
 		combined_query = f"""
-			### Instruction
-			You are an API-specific AI assistant, use the following pieces of context to answer the requirement at the end. If you don't know the answer, just say that you don't know, can I help with anything else, don't try to make up an answer.
+### Instruction
+You are an API-specific AI assistant, use the following pieces of context to answer the requirement at the end. If you don't know the answer, just say that you don't know, can I help with anything else, don't try to make up an answer.
 
-			### Context
-			{context}
+### Context
+{context}
 
-			### Input Data
-			{user_query}
+### Input Data
+{user_query}
 
-			### Output Indicator
-			Follow the contextual information when making modifications. Make all modifications in the function except for imports. Keep the answer as concise as possible. Output only code.
-		"""
+### Output Indicator
+Follow the contextual information when making modifications. Make all modifications in the function except for imports. Keep the answer as concise as possible. Output only code.
+"""
 
 		chatgpt_response = self.client.chat.completions.create(
 			model="gpt-4o",
