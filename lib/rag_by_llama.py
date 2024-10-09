@@ -1,5 +1,5 @@
 import os
-from query import Query
+from rag_query import Query
 
 def main():
 	print("running...")
@@ -7,11 +7,11 @@ def main():
 	### 変更点
 	# 1. 対象を変更する場合はtargetを変更
 	# 2. typeを指定
-	namespace = "fitbit"
+	namespace = "switchbot"
 	data_type = "commit"
 	query = Query(namespace=namespace)
 
-	directory_path = f"../dataset/fitbit/{data_type}/"
+	directory_path = f"../dataset/{namespace}/{data_type}/"
 	for filename in os.listdir(directory_path):
 		# ファイルの内容を読み取る
 		file_path = os.path.join(directory_path, filename)
@@ -20,8 +20,9 @@ def main():
 			prompt = file.read()
 
 		# ファイルが空でないかつ，特定のディレクトリ指定
-		if prompt != "" and (
-			filename.split(".")[0] == "15"): # 15.pyのみ実行
+		if prompt != "":
+		# if prompt != "" and (
+			# filename.split(".")[0] == "19"): # 15.pyのみ実行
 			# ディレクトリ作成
 			new_file_name = filename.split(".")[0]
 			new_dir_path = f"../history/{namespace}/{data_type}/{new_file_name}/"

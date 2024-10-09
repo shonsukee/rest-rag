@@ -14,12 +14,11 @@ class Query:
 		load_dotenv()
 		self.namespace = namespace
 		self.client = OpenAI()
+		self.query_engine = self.initialize_pinecone()
 
-	def initialize_pinecone(self, index_name):
+	def initialize_pinecone(self):
 		pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY"))
-		index_name = os.environ.get(index_name)
-		print(index_name)
-
+		index_name = "rag-research"
 		pinecone_index = pc.Index(index_name)
 		vector_store = PineconeVectorStore(
 			pinecone_index=pinecone_index,
@@ -31,7 +30,7 @@ class Query:
 		index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
 		vector_retriever = VectorIndexRetriever(
 			index=index,
-			similarity_top_k=5, # 関連度上位5件取得
+			similarity_top_k=10, # 関連度上位5件取得
 		)
 
 		response_synthesizer = get_response_synthesizer()
@@ -55,23 +54,13 @@ class Query:
 		"""
 		context = ""
 		similarities = []
-		pinecone_indexes = [
-			"latest_natural_language",
-			"latest_code",
-			"outdated_natural_language",
-			"outdated_code",
-		]
 
-		# 4つ分のDBへ取得処理を行うためのループを回す
-		for index in pinecone_indexes:
-			self.query_engine = self.initialize_pinecone(index.upper())
-			# クエリ結果から関連ノードを取得
-			response = self.query_engine.query(user_query)
-			related_nodes = response.source_nodes
-			context += f"\n## Technical Specifications for {index.replace('_', ' ').capitalize()}\n"
-			for idx, node in enumerate(related_nodes):
-				context += f"""\nContext number {idx+1} (score: {node.score}): \n{node.text}"""
-				similarities.append(node.score)
+		# クエリ結果から関連ノードを取得
+		response = self.query_engine.query(user_query)
+		related_nodes = response.source_nodes
+		for idx, node in enumerate(related_nodes):
+			context += f"""\nContext number {idx+1} (score: {node.score}): \n{node.text}"""
+			similarities.append(node.score)
 
 		# 関連度の平均計算
 		similarity = np.mean(similarities) if len(similarities) > 0 else 0

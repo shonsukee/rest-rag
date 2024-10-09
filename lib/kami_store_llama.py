@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 #################
 ## Data Config ##
 #################
-namespace = "fitbit"
+namespace = "switchbot"
 version = "outdated"
 
 class StoreDB:
@@ -79,6 +79,7 @@ class ExtractContext:
 				# URL からテキスト抽出
 				html = requests.get(url).text
 				soup = BeautifulSoup(html, "html.parser")
+				tag = 'article'
 				article = soup.find('article')
 
 				if article == "":
@@ -92,8 +93,11 @@ class ExtractContext:
 
 				natural_languages.append(article.get_text(separator=" ").strip())
 			except Exception as e:
-				print(raw_context)
 				print(f"{url}: \n<{tag}>タグが見つかりませんでした。\n")
+				print(f"{e}")
+
+		if len(code_blocks) == 0:
+			return
 
 		# テキスト情報をドキュメント化して，ベクトルDBに格納
 		n_documents = [Document(text=t) for t in natural_languages]
